@@ -1,0 +1,21 @@
+// Optional extra script bonuses for Maya Crown
+// Include this file if you want more complex OnEquip effects
+// beyond what the item database Script: field provides.
+
+-	script	MayaHatBonus	-1,{
+	end;
+
+OnPCEquipEvent:
+	if (getequipid(EQI_HEAD_TOP) == 19500) {	// Maya Crown
+		// Example: extra bonus while in Ant Hell maps
+		if (strcharinfo(3) == "anthell01" || strcharinfo(3) == "anthell02") {
+			bonus bMaxHPrate,5;
+			bonus bMaxSPrate,5;
+		}
+	}
+	end;
+
+OnPCUnequipEvent:
+	// Clean up if needed
+	end;
+}

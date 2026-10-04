@@ -1,0 +1,315 @@
+//===== Maya Anthell Card Trader & Gear NPC ========================
+//= Custom NPC for rAthena / Hercules
+//= Place outside Ant Hell (moc_fild20 or similar)
+//= Trades MVP cards & Ant Hell rare drops for Maya Card,
+//= Maya Purple Card, and exclusive Maya Crown + gear.
+//==================================================================
+
+moc_fild20,210,250,4	script	Maya the Queen	4_F_KAFRA8,{
+
+	mes "[Maya the Queen]";
+	mes "Welcome, traveler...";
+	mes "You stand before the threshold of my nest.";
+	mes "I am the Queen's voice.";
+	next;
+	mes "[Maya the Queen]";
+	mes "Do you seek the power of Maya's reflection,";
+	mes "or the eyes that pierce the shadows?";
+	next;
+
+	switch(select(
+		"Exchange for ^0000FFMaya Card^000000",
+		"Exchange for ^FF00FFMaya Purple Card^000000",
+		"Claim ^FFD700Maya Crown & Gear^000000",
+		"Tell me about Ant Hell rarities",
+		"Goodbye"
+	)) {
+
+	// -------------------------------------------------
+	// 1. Maya Card Exchange
+	// -------------------------------------------------
+	case 1:
+		mes "[Maya the Queen]";
+		mes "The Maya Card reflects magic back at its caster.";
+		mes "I will trade it for a card of equal strength,";
+		mes "or for the rare materials of my nest.";
+		next;
+
+		switch(select(
+			"Trade a comparable MVP Card + 5,000,000z",
+			"Upgrade Maya Purple Card + Mother's Nightmare + 2,000,000z",
+			"Trade 3 high-tier cards + Queen's Hair Ornament + 3,000,000z",
+			"Cancel"
+		)) {
+		case 1:
+			callsub L_TradeMayaCard_MVP;
+			break;
+		case 2:
+			callsub L_TradeMayaCard_Upgrade;
+			break;
+		case 3:
+			callsub L_TradeMayaCard_Multi;
+			break;
+		case 4:
+			close;
+		}
+		break;
+
+	// -------------------------------------------------
+	// 2. Maya Purple Card Exchange
+	// -------------------------------------------------
+	case 2:
+		mes "[Maya the Queen]";
+		mes "Maya Purple's eyes see what is hidden.";
+		mes "Bring me materials from the nest or lesser cards.";
+		next;
+
+		switch(select(
+			"Trade Mother's Nightmare + 500,000z",
+			"Trade Safety Ring or Tiara + 2 mid cards + 1,500,000z",
+			"Trade 5 any cards + Queen's Hair Ornament + 1,000,000z",
+			"Cancel"
+		)) {
+		case 1:
+			callsub L_TradePurple_Material;
+			break;
+		case 2:
+			callsub L_TradePurple_Mid;
+			break;
+		case 3:
+			callsub L_TradePurple_Quantity;
+			break;
+		case 4:
+			close;
+		}
+		break;
+
+	// -------------------------------------------------
+	// 3. Claim Maya Crown & Gear
+	// -------------------------------------------------
+	case 3:
+		if (MAYA_CROWN_CLAIMED) {
+			mes "[Maya the Queen]";
+			mes "You already wear the mark of the colony.";
+			mes "The crown cannot be claimed twice.";
+			close;
+		}
+		if (!countitem(4146) && !MAYA_TRADE_DONE) {	// 4146 = Maya Card (adjust ID if needed)
+			mes "[Maya the Queen]";
+			mes "You must first earn the Queen's favor";
+			mes "by obtaining a Maya Card through me,";
+			mes "or by bringing one you already possess.";
+			close;
+		}
+		// IMPORTANT: Confirm these item IDs on YOUR server item_db!
+		// Common official IDs:
+		//   Queen's Hair Ornament = 10006
+		//   Armlet of Obedience   = 639
+		//   Mother's Nightmare    = 7020
+		//   Maya Card             = 4146
+		//   Maya Purple Card      = 4198
+		if (countitem(10006) < 1 || countitem(639) < 1) {
+			mes "[Maya the Queen]";
+			mes "To claim the crown you must bring:";
+			mes "- Queen's Hair Ornament";
+			mes "- Armlet of Obedience";
+			mes "These are the symbols of the nest.";
+			close;
+		}
+		if (Zeny < 10000000) {
+			mes "[Maya the Queen]";
+			mes "The ritual requires 10,000,000 zeny.";
+			close;
+		}
+
+		mes "[Maya the Queen]";
+		mes "You have proven yourself a true friend of the colony.";
+		mes "Wear this crown, and let the ants of Ant Hell recognize you as kin.";
+		next;
+
+		// Remove requirements
+		delitem 10006,1;	// Queen's Hair Ornament
+		delitem 639,1;		// Armlet of Obedience
+		Zeny -= 10000000;
+
+		// Give rewards (custom IDs – change to your actual IDs)
+		getitem 19500,1;	// Maya Crown
+		getitem 19501,1;	// Ant Queen Brooch
+		getitem 19502,1;	// Purple Antennae
+
+		set MAYA_CROWN_CLAIMED,1;
+
+		mes "[Maya the Queen]";
+		mes "The Maya Crown, the Ant Queen Brooch,";
+		mes "and the Purple Antennae are now yours.";
+		mes "May the colony protect you.";
+		close;
+
+	// -------------------------------------------------
+	// 4. Lore
+	// -------------------------------------------------
+	case 4:
+		mes "[Maya the Queen]";
+		mes "Deep within Ant Hell, the true Queen Maya rules.";
+		mes "Her card is rare – only 0.01% of hunters ever see it.";
+		mes "Her mate, Maya Purple, grants the power to see the hidden.";
+		next;
+		mes "[Maya the Queen]";
+		mes "Mother's Nightmare, Queen's Hair Ornament,";
+		mes "Armlet of Obedience, Tiara, Safety Ring...";
+		mes "These are the treasures of the nest.";
+		mes "Bring them to me, and I shall reward you.";
+		close;
+
+	case 5:
+		mes "[Maya the Queen]";
+		mes "Return when the nest calls to you.";
+		close;
+	}
+
+	end;
+
+//==================================================
+// Subroutines – Maya Card trades
+//==================================================
+
+L_TradeMayaCard_MVP:
+	// List of acceptable MVP cards (IDs – adjust to your server)
+	// Phreeoni 4121, Drake 4137, Eddga 4123, Mistress 4132, Moonlight 4131, etc.
+	setarray .@mvp_cards[0],
+		4121,	// Phreeoni
+		4137,	// Drake
+		4123,	// Eddga
+		4132,	// Mistress
+		4131,	// Moonlight Flower
+		4140,	// Dracula
+		4148;	// Amon Ra (example – change as needed)
+
+	mes "[Maya the Queen]";
+	mes "Which MVP card do you offer?";
+	next;
+
+	.@menu$ = "";
+	for (.@i = 0; .@i < getarraysize(.@mvp_cards); .@i++) {
+		.@menu$ = .@menu$ + getitemname(.@mvp_cards[.@i]) + ":";
+	}
+	.@menu$ = .@menu$ + "Cancel";
+
+	.@choice = select(.@menu$) - 1;
+	if (.@choice == getarraysize(.@mvp_cards)) close;
+
+	.@card_id = .@mvp_cards[.@choice];
+
+	if (countitem(.@card_id) < 1) {
+		mes "[Maya the Queen]";
+		mes "You do not possess that card.";
+		close;
+	}
+	if (Zeny < 5000000) {
+		mes "[Maya the Queen]";
+		mes "You need 5,000,000 zeny.";
+		close;
+	}
+
+	mes "[Maya the Queen]";
+	mes "I will take your " + getitemname(.@card_id);
+	mes "and 5,000,000 zeny in exchange for a Maya Card.";
+	mes "Proceed?";
+	next;
+	if (select("Yes:No") == 2) close;
+
+	delitem .@card_id,1;
+	Zeny -= 5000000;
+	getitem 4146,1;		// Maya Card (confirm ID)
+	set MAYA_TRADE_DONE,1;
+
+	mes "[Maya the Queen]";
+	mes "The magic of the Queen now rests in your shield.";
+	mes "Use it wisely.";
+	close;
+
+L_TradeMayaCard_Upgrade:
+	if (countitem(4198) < 1) {	// Maya Purple Card
+		mes "[Maya the Queen]";
+		mes "You need a Maya Purple Card.";
+		close;
+	}
+	if (countitem(7020) < 1) {	// Mother's Nightmare
+		mes "[Maya the Queen]";
+		mes "You need Mother's Nightmare.";
+		close;
+	}
+	if (Zeny < 2000000) {
+		mes "[Maya the Queen]";
+		mes "You need 2,000,000 zeny.";
+		close;
+	}
+
+	mes "[Maya the Queen]";
+	mes "Upgrade Maya Purple + Mother's Nightmare";
+	mes "into a true Maya Card?";
+	next;
+	if (select("Yes:No") == 2) close;
+
+	delitem 4198,1;
+	delitem 7020,1;
+	Zeny -= 2000000;
+	getitem 4146,1;
+	set MAYA_TRADE_DONE,1;
+
+	mes "[Maya the Queen]";
+	mes "The Queen's full power is now yours.";
+	close;
+
+L_TradeMayaCard_Multi:
+	// Simplified: require 3 specific high-tier cards (player must have them)
+	// In a full version you would loop and let the player choose 3 different ones.
+	mes "[Maya the Queen]";
+	mes "Bring me three different high-tier cards";
+	mes "and one Queen's Hair Ornament.";
+	mes "(This path is left as an exercise – expand the script)";
+	close;
+
+//==================================================
+// Subroutines – Maya Purple Card trades
+//==================================================
+
+L_TradePurple_Material:
+	if (countitem(7020) < 1) {
+		mes "[Maya the Queen]";
+		mes "You need Mother's Nightmare.";
+		close;
+	}
+	if (Zeny < 500000) {
+		mes "[Maya the Queen]";
+		mes "You need 500,000 zeny.";
+		close;
+	}
+
+	mes "[Maya the Queen]";
+	mes "Trade Mother's Nightmare + 500,000z";
+	mes "for a Maya Purple Card?";
+	next;
+	if (select("Yes:No") == 2) close;
+
+	delitem 7020,1;
+	Zeny -= 500000;
+	getitem 4198,1;		// Maya Purple Card
+
+	mes "[Maya the Queen]";
+	mes "The eyes of the shadows are now yours.";
+	close;
+
+L_TradePurple_Mid:
+	mes "[Maya the Queen]";
+	mes "This path requires a Safety Ring or Tiara";
+	mes "plus two mid-tier cards. Expand as needed.";
+	close;
+
+L_TradePurple_Quantity:
+	mes "[Maya the Queen]";
+	mes "Bring five different cards and a Queen's Hair Ornament.";
+	mes "Expand this subroutine to check inventory.";
+	close;
+
+}

@@ -1,0 +1,16 @@
+// Custom items for Maya Anthell NPC pack (legacy .txt format)
+// Append these lines to your item_db.txt
+// Adjust IDs if they conflict.
+
+// Maya Crown (Upper Headgear)
+19500,Maya_Crown,Maya Crown,5,0,,50,,6,,1,0,0,0,0,0,0,0,0,{},{},{}
+
+// Ant Queen Brooch (Accessory)
+19501,Ant_Queen_Brooch,Ant Queen Brooch,5,0,,10,,1,,0,0,0,0,0,0,0,0,0,{},{},{}
+
+// Purple Antennae (Middle Headgear)
+19502,Purple_Antennae,Purple Antennae,5,0,,20,,1,,0,0,0,0,0,0,0,0,0,{},{},{}
+
+// Note: Add the actual script bonuses in item_db2 or via the Script: field
+// depending on your emulator version. Example bonus for Maya Crown:
+// bonus bInt,5; bonus bDex,5; bonus2 bSubRace,RC_Insect,10;

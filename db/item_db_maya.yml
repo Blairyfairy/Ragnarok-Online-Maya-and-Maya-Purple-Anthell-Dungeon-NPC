@@ -1,0 +1,68 @@
+# Custom items for Maya Anthell NPC pack
+# Merge into your item_db or import as a separate file.
+# Adjust IDs if they conflict with existing items on your server.
+
+Header:
+  Type: ITEM_DB
+  Version: 3
+
+Body:
+  - Id: 19500
+    AegisName: Maya_Crown
+    Name: Maya Crown
+    Type: Armor
+    Buy: 0
+    Weight: 50
+    Defense: 6
+    Slots: 1
+    Jobs:
+      All: true
+    Locations:
+      Head_Top: true
+    ArmorLevel: 1
+    EquipLevelMin: 50
+    Refineable: true
+    View: 1000          # Change to a free view ID that matches your sprite
+    Script: |
+      bonus bInt,5;
+      bonus bDex,5;
+      bonus2 bSubRace,RC_Insect,10;
+    // Optional: bonus bMagicDamageReturn,10;  (weaker version of Maya Card)
+
+  - Id: 19501
+    AegisName: Ant_Queen_Brooch
+    Name: Ant Queen Brooch
+    Type: Armor
+    Buy: 0
+    Weight: 10
+    Defense: 1
+    Slots: 0
+    Jobs:
+      All: true
+    Locations:
+      Accessory: true
+    ArmorLevel: 1
+    EquipLevelMin: 40
+    Script: |
+      bonus bAllStats,3;
+      // bonus2 bExpAddRace,RC_Insect,5;
+
+  - Id: 19502
+    AegisName: Purple_Antennae
+    Name: Purple Antennae
+    Type: Armor
+    Buy: 0
+    Weight: 20
+    Defense: 1
+    Slots: 0
+    Jobs:
+      All: true
+    Locations:
+      Head_Mid: true
+    ArmorLevel: 1
+    EquipLevelMin: 30
+    View: 1001          # Change to free view ID
+    Script: |
+      bonus bLuk,2;
+      // Uncomment if you want it to grant detect hidden:
+      // bonus bEnableDetect,1;
